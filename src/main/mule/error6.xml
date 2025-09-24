@@ -40,8 +40,9 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
 		<error-handler >
 			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="5cf2dad8-a872-4283-9b16-78001b4c4429" >
 				<set-payload value='#["inside private flow error handling"]' doc:name="Set Payload" doc:id="8cbdfb9e-b897-4486-8165-3cd6e19199dd" />
-				<logger level="INFO" doc:name="Logger" doc:id="03bc697c-19a4-4a8c-b985-4dfba5f71e28" />
+				<logger level="INFO" doc:name="Logger-errorcapture" doc:id="03bc697c-19a4-4a8c-b985-4dfba5f71e28" />
 			</on-error-propagate>
 		</error-handler>
 	</flow>
+
 </mule>
