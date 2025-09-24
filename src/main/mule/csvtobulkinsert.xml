@@ -66,7 +66,7 @@ values (:Name,:AccountNumber,:Phone,:Description)]]></db:sql>
 	</flow>
 	<flow name="csvtobulkinsertFlow2-Products" doc:id="f1ff5979-3e32-4102-9542-c8f10411963e" >
 		<http:listener doc:name="Listener" doc:id="fb7ea2fa-9888-40cc-a3e0-365538130299" config-ref="HTTP_Listener_config" path="/product" />
-		<logger level="INFO" doc:name="Logger" doc:id="f16ce4e7-c5da-4164-9620-eb49e6c85676" message="#[payload]" />
+		<logger level="INFO" doc:name="Logger1111" doc:id="f16ce4e7-c5da-4164-9620-eb49e6c85676" message="#[payload]" />
 		<file:read doc:name="Read" doc:id="c08ca32b-0838-4e52-88e6-9319c688bb1d" config-ref="File_Config" path="D:\csv\sql_bulk_insert_products.csv" />
 		<ee:transform doc:name="Transform Message" doc:id="972bd711-28fc-45f6-8fb6-413cd923d024" >
 			<ee:message >
@@ -116,4 +116,5 @@ values (:AccountNumber,:ProductCode,:OrderNumber,:Type,:Status,:EffectiveDate)]]
 		</batch:job>
 		<logger level="INFO" doc:name="Logger2" doc:id="08ebe9c2-8c80-4e3b-9552-b8f9886bc688" message="successfully inserted" />
 	</flow>
+
 </mule>
