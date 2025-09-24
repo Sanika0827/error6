@@ -62,6 +62,7 @@ values (:Name,:AccountNumber,:Phone,:Description)]]></db:sql>
 				</batch:step>
 			</batch:process-records>
 		</batch:job>
+		<logger level="INFO" doc:name="Logger" doc:id="950cb7e6-0e43-45ee-81ea-bf766f8c528b" message="end"/>
 	</flow>
 	<flow name="csvtobulkinsertFlow2-Products" doc:id="f1ff5979-3e32-4102-9542-c8f10411963e" >
 		<http:listener doc:name="Listener" doc:id="fb7ea2fa-9888-40cc-a3e0-365538130299" config-ref="HTTP_Listener_config" path="/product" />
