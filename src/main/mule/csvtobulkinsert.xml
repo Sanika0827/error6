@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:batch="http://www.mulesoft.org/schema/mule/batch" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="6b6599a4-1ec9-4f96-b483-7e01620501ab" >
+		<http:listener-connection host="localhost" port="8082" />
+	</http:listener-config>
+	<file:config name="File_Config" doc:name="File Config" doc:id="198f1601-f728-4ad9-be1e-df875e28fa67" >
+		<file:connection workingDir="D:\csv" />
+	</file:config>
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="5785166c-a9c7-4f12-a6ab-6932034611f7" >
+		<db:my-sql-connection host="localhost" port="3306" user="root" password="$@nika_08!" database="newdb" />
+	</db:config>
+	<flow name="csvtobulkinsertFlow-Accounts" doc:id="b8cf8d3e-5c65-469b-80f7-85f71036ab18" >
+		<http:listener doc:name="Listener" doc:id="e221127b-8069-4dae-9a7f-5ef8b56cdc35" config-ref="HTTP_Listener_config" path="/accounts"/>
+		<logger level="INFO" doc:name="Logger" doc:id="e09fbcff-ab30-4f6a-b759-787404457970" message="#[payload]"/>
+		<file:read doc:name="Read" doc:id="38cba3e7-bcfd-4b31-8f3b-47dad1a812ff" config-ref="File_Config" path="D:\csv\sql_bulk_insert_sample-Accounts1.csv"/>
+		<ee:transform doc:name="Transform Message" doc:id="2b890f68-f4ef-4688-b393-6a755d6892b2" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<batch:job jobName="csvtobulkinsertBatch_Job-A" doc:id="f78f4a00-95c3-43d2-ac0e-4336d4e8f5fd" blockSize="10" >
+			<batch:process-records >
+				<batch:step name="Batch_Step" doc:id="cb94ddd4-4a7b-45c1-aa1e-ba2978501b0a" >
+					<ee:transform doc:name="Transform Message" doc:id="5ea494e8-28f8-4512-af70-c601a848a677" >
+						<ee:message >
+							<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+payload]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+					<batch:aggregator doc:name="Batch Aggregator" doc:id="ed31815a-8275-446f-bcf7-55142293fbeb" size="5000" preserveMimeTypes="true">
+						<ee:transform doc:name="Transform Message" doc:id="f780dde1-7bca-4f94-b3d2-90fcf428a35f" >
+							<ee:message >
+								<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+payload map(item,index)-> {
+	Name: item.Name,
+	AccountNumber: item.AccountNumber,
+	Phone: item.Phone,
+	Description: item.Description
+	}]]></ee:set-payload>
+							</ee:message>
+						</ee:transform>
+						<db:bulk-insert doc:name="Bulk insert" doc:id="b5d27949-b126-4fc3-b36a-74bf8b198153" config-ref="Database_Config" >
+							<db:sql ><![CDATA[insert into Account2(Name,AccountNumber,Phone,Description)
+values (:Name,:AccountNumber,:Phone,:Description)]]></db:sql>
+						</db:bulk-insert>
+					</batch:aggregator>
+				</batch:step>
+			</batch:process-records>
+		</batch:job>
+	</flow>
+	<flow name="csvtobulkinsertFlow2-Products" doc:id="f1ff5979-3e32-4102-9542-c8f10411963e" >
+		<http:listener doc:name="Listener" doc:id="fb7ea2fa-9888-40cc-a3e0-365538130299" config-ref="HTTP_Listener_config" path="/product" />
+		<logger level="INFO" doc:name="Logger" doc:id="f16ce4e7-c5da-4164-9620-eb49e6c85676" message="#[payload]" />
+		<file:read doc:name="Read" doc:id="c08ca32b-0838-4e52-88e6-9319c688bb1d" config-ref="File_Config" path="D:\csv\sql_bulk_insert_products.csv" />
+		<ee:transform doc:name="Transform Message" doc:id="972bd711-28fc-45f6-8fb6-413cd923d024" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<db:bulk-insert doc:name="Bulk insert" doc:id="3423a7c9-a0b4-47d8-9dda-3637e2744593" config-ref="Database_Config" >
+			<db:sql ><![CDATA[insert into Product3(Name,ProductCode,Description,Family)
+values (:Name,:ProductCode,:Description,:Family)]]></db:sql>
+		</db:bulk-insert>
+		<logger level="INFO" doc:name="Logger1" doc:id="63dc1d72-078f-4fde-8250-ee8d40ac7f01" message="successfully inserted" />
+	</flow>
+	<flow name="csvtobulkinsertFlow3-Orders" doc:id="4f56c760-c541-4484-8ac7-c7bba82ea259" >
+		<http:listener doc:name="Listener" doc:id="1b150c64-6af5-43e5-b5c5-ca0cd85de899" config-ref="HTTP_Listener_config" path="/orders" />
+		<logger level="INFO" doc:name="Logger" doc:id="fc3f0440-6834-4906-99df-97bde3d16599" message="#[payload]" />
+		<file:read doc:name="Read" doc:id="6639069d-48c7-4b72-9d6f-af47f1e060a4" config-ref="File_Config" path="D:\csv\sql_bulk_insert_orders.csv" />
+		<ee:transform doc:name="Transform Message" doc:id="3303c2c7-2578-42af-a086-601828a39649" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload map(item,index)->
+{
+	AccountNumber: item.Account.AccountNumber,
+	ProductCode: item.OrderItems.Product2.ProductCode[0],
+	OrderNumber: item.OrderNumber,
+	Type: item.Type,
+	Status: item.Status,
+	EffectiveDate: item.EffectiveDate
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<batch:job jobName="csvtobulkinsertBatch_Job" doc:id="21205717-5a99-497c-bb70-76a78a1bb8d5" blockSize="10">
+			<batch:process-records >
+				<batch:step name="Batch_Step" doc:id="fd1ff6f5-e626-44c8-a82c-d41db9dcc0b3" >
+					<batch:aggregator doc:name="Batch Aggregator" doc:id="e94a8908-8168-4c50-9cf8-3e61180f2d93" size="5000">
+						<db:bulk-insert doc:name="Bulk insert" doc:id="4bdf2704-737e-4ef0-97b5-8f3a318d26ec" config-ref="Database_Config">
+			<db:sql><![CDATA[insert into orders(AccountNumber,ProductCode,OrderNumber,Type,Status,EffectiveDate)
+values (:AccountNumber,:ProductCode,:OrderNumber,:Type,:Status,:EffectiveDate)]]></db:sql>
+		</db:bulk-insert>
+					</batch:aggregator>
+				</batch:step>
+			</batch:process-records>
+		</batch:job>
+		<logger level="INFO" doc:name="Logger2" doc:id="08ebe9c2-8c80-4e3b-9552-b8f9886bc688" message="successfully inserted" />
+	</flow>
+</mule>
