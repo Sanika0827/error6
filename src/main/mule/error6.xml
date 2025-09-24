@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="1f3f5594-afc2-4e6b-b989-2c900276faf4" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="94308272-920e-42de-b048-0124954abc13" />
+	<http:request-config name="HTTP_Request_configuration1" doc:name="HTTP Request configuration" doc:id="281f673a-9fa1-4f5d-add0-506573b1d960" />
+	<flow name="error6Flow" doc:id="f6c613bd-7baf-4f48-a87c-e45d840c6fb0" >
+		<http:listener doc:name="Listener" doc:id="3435b5e2-9fff-4e06-9639-a867f60552f1" config-ref="HTTP_Listener_config" path="/error6a">
+			<http:error-response >
+				<http:body ><![CDATA[#[payload]]]></http:body>
+			</http:error-response>
+		</http:listener>
+		<set-payload value='#["before flow reference"]' doc:name="Set Payload" doc:id="345197d5-1cb2-45b4-8d61-c446308a24cc" />
+		<flow-ref doc:name="Flow Reference" doc:id="bd2bb82b-7073-4624-a669-2ea51a5540a9" name="error6Flow1"/>
+		<set-payload value='#["success"]' doc:name="Set Payload" doc:id="d46bcd5f-8080-4646-a8bb-193c110b44cb" />
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="0baa3632-8bee-4213-8b2a-c598bc7d8c36" type="ANY">
+				<set-payload value='#["inside main flow error block"]' doc:name="Set Payload" doc:id="333011b9-b17b-42a9-9b9b-50ae1295e55b" />
+				<logger level="INFO" doc:name="Logger" doc:id="41e0a26e-2117-46a0-9868-cd63587c18a2" />
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+	<flow name="error6Flow1" doc:id="c0496f48-a911-4b67-9b9a-658ebc651af5" >
+		<try doc:name="Try" doc:id="0985aae9-5583-45ec-aee2-844313c2c9da" >
+			<http:request method="GET" doc:name="Request" doc:id="d2277c82-fb57-4918-96a7-75954dcd88b7" config-ref="HTTP_Request_configuration1" url="cd.sdsd.com"/>
+			<set-payload value='#["inside private flow error block"]' doc:name="Set Payload" doc:id="739444e6-ead6-402f-8f59-78e065a15672" />
+			<error-handler>
+				<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="0119c8ea-654d-41da-9b71-084d94ae7298" >
+					<set-payload value='#["error handled in try block"]' doc:name="Set Payload" doc:id="0a433e16-aec3-49b4-bab0-54f47ac4fe83" />
+				</on-error-propagate>
+			</error-handler>
+		</try>
+		<set-payload value='#["success in private flow"]' doc:name='"success in private flow"' doc:id="3f0f83f6-e685-4aaa-9925-66ab5b56e527" />
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="5cf2dad8-a872-4283-9b16-78001b4c4429" >
+				<set-payload value='#["inside private flow error handling"]' doc:name="Set Payload" doc:id="8cbdfb9e-b897-4486-8165-3cd6e19199dd" />
+				<logger level="INFO" doc:name="Logger" doc:id="03bc697c-19a4-4a8c-b985-4dfba5f71e28" />
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+</mule>

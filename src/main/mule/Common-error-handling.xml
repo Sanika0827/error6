@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+	<error-handler name="Common-error-handlingError_Handler" doc:id="5326b9b9-59b2-4d12-9770-1d0dc9b0af13" >
+		<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="83a85f6a-49bd-482e-9a9b-a7c0c1a3b59a" type=" HTTP:BAD_REQUEST, HTTP:CONNECTIVITY">
+			<set-payload value='#["handled in global"]' doc:name='"handled in global"' doc:id="52ec8fe4-f981-49b4-af0f-eb22be94ed66" />
+		</on-error-continue>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="cdc630ee-ae7a-4a5e-9ecc-579aa82d8883" type=" HTTP:BAD_REQUEST, HTTP:CONNECTIVITY">
+			<set-payload value='#["same payload"]' doc:name='"same payload"' doc:id="9b9b4cbc-b189-45ed-940f-796cb43c4112" />
+		</on-error-propagate>
+	</error-handler>
+</mule>
