@@ -18,6 +18,7 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
 		<set-payload value='#["before flow reference"]' doc:name="Set Payload" doc:id="345197d5-1cb2-45b4-8d61-c446308a24cc" />
 		<flow-ref doc:name="Flow Reference" doc:id="bd2bb82b-7073-4624-a669-2ea51a5540a9" name="error6Flow1"/>
 		<set-payload value='#["success"]' doc:name="Set Payload" doc:id="d46bcd5f-8080-4646-a8bb-193c110b44cb" />
+		<logger level="INFO" doc:name="Logger" doc:id="41ab4f18-07e5-4be0-9a06-3ba0dbf3805c" />
 		<error-handler >
 			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="0baa3632-8bee-4213-8b2a-c598bc7d8c36" type="ANY">
 				<set-payload value='#["inside main flow error block"]' doc:name="Set Payload" doc:id="333011b9-b17b-42a9-9b9b-50ae1295e55b" />
